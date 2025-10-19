@@ -8,7 +8,12 @@
 - requests
 - _sqlalchemy_
 
-### Полезные ссылки
-[Подсказка по markdown](https://www.markdownguide.org/basic-syntax/)
+### Полезные ссылки:
+- [Подсказка по markdown](https://www.markdownguide.org/basic-syntax/)
+- [Генератор файла .gitignore](https://www.toptal.com/developers/gitignore)
+
+
+
+
 
 
