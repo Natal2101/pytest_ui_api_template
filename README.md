@@ -63,3 +63,5 @@ pytest_ui_api_template:
 - [Генератор файла .gitignore](https://www.toptal.com/developers/gitignore)
 - [Про configparsers](https://docs.python.org/3/library/configparser.html)
 - [Про pip freeze](https://pip.pypa.io/en/stable/cli/pip_freeze/)
+
+[Финальный проект по ручному тестированию](https://qa65-0.yonote.ru/share/7f1b2a21-44a4-4db9-badb-5a4af75be6a9)
