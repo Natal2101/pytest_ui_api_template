@@ -1,0 +1,23 @@
+{
+    "UI": {
+        "url_krasnoyarsk": "/krasnoyarsk?shippingType=delivery",
+        "address": "улица Ленина, 128, подъезд 1",
+        "text": "улица Ленина",
+        "product_for_search": "хлеб",
+        "number_for_increase": "2",
+        "product_non": "zgbkmdfzkg"
+    },
+    "API": {
+        "address": "улица Ленина, 122, подъезд 1",
+        "coordinates": [92.848, 56.0116, 92.85, 56.0136],
+        "longitude": 92.84896046815679,
+        "latitude": 56.012596578989125,
+        "product_for_api_search": "картофель фри",
+        "product_non_existent": "длвапщощашплка14",
+        "shops": [
+            "Магнит",
+            "Гипер Лента",
+            "Пятёрочка"
+        ]
+    }
+}
