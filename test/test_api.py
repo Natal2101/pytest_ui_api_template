@@ -20,45 +20,38 @@ provider = DataProvider("test_data.json")
     - Соответствие введенного адреса возвращенному
 """)
 def test_positive_change_delivery_address(delivery_api: DeliveryApi):
-    try:
-        data = {
-            "action": "user_input",
-            "type": "a",
-            "part": provider.get_api_address(),
-            "state": {
-                "current_mode": "eats",
-                "bbox": provider.get_api_coordinates()
-            }
+    data = {
+        "action": "user_input",
+        "type": "a",
+        "part": provider.get_api_address(),
+        "state": {
+            "current_mode": "eats",
+            "bbox": provider.get_api_coordinates()
         }
-        headers = {
-            'cookie': config.get_api_cookie_eat_session(),
-            'accept-language': 'ru'
-        }
-        changed_address = delivery_api.change_delivery_address(headers, data)
+    }
+    headers = {
+        'cookie': config.get_api_cookie_eat_session(),
+        'accept-language': 'ru'
+    }
+    changed_address = delivery_api.change_delivery_address(headers, data)
 
-        with allure.step("Проверка статус кода"):
-            assert changed_address.status_code == 200, \
-                "❌ Адрес доставки не изменился"
+    with allure.step("Проверка статус кода"):
+        assert changed_address.status_code == 200, \
+            "❌ Адрес доставки не изменился"
 
-        with allure.step("Проверка структуры ответа"):
-            assert "results" in changed_address.json(), \
-                "❌ Ответ не содержит ключ 'results'"
+    with allure.step("Проверка структуры ответа"):
+        assert "results" in changed_address.json(), \
+            "❌ Ответ не содержит ключ 'results'"
 
-            results = changed_address.json()["results"]
-            assert len(results) > 0, "❌ Результаты пусты"
+        results = changed_address.json()["results"]
+        assert len(results) > 0, "❌ Результаты пусты"
 
-        with allure.step("Проверка соответствия ожидаемого "
-                         "результата фактическому"):
-            assert changed_address.json()["results"][0]['title']['text'] == provider.get_api_address()
+    with allure.step("Проверка соответствия ожидаемого "
+                        "результата фактическому"):
+        assert changed_address.json()["results"][0]['title']['text'] == provider.get_api_address()
 
-        print("✅✅✅✅✅✅Тест test_positive_change_delivery_address "
-              "пройден успешно!✅✅✅✅✅✅")
-
-    except Exception as e:
-        print(f"❌❌❌❌❌❌Произошла ошибка "
-              f"в test_positive_change_delivery_address: "
-              f"{str(e)}❌❌❌❌❌❌")
-        raise
+    print("✅✅✅✅✅✅Тест test_positive_change_delivery_address "
+            "пройден успешно!✅✅✅✅✅✅")
 
 
 @allure.feature("Поиск продуктов")
@@ -76,9 +69,8 @@ def test_positive_change_delivery_address(delivery_api: DeliveryApi):
     - Корректное отображение количества найденных товаров
 """)
 def test_positive_search_product(delivery_api: DeliveryApi):
-    try:
-        # указываем адрес доставки
-        data = {
+    # указываем адрес доставки
+    data = {
             "action": "user_input",
             "type": "a",
             "part": provider.get_api_address(),
@@ -87,58 +79,52 @@ def test_positive_search_product(delivery_api: DeliveryApi):
                 "bbox": provider.get_api_coordinates()
             }
         }
-        headers = {
+    headers = {
             'cookie': config.get_api_cookie_eat_session(),
             'accept-language': 'ru'
         }
-        changed_address = delivery_api.change_delivery_address(headers, data)
+    changed_address = delivery_api.change_delivery_address(headers, data)
 
-        with allure.step("Проверка статус кода изменения адреса"):
-            assert changed_address.status_code == 200, \
-                "❌ Адрес доставки не изменился"
+    with allure.step("Проверка статус кода изменения адреса"):
+        assert changed_address.status_code == 200, \
+            "❌ Адрес доставки не изменился"
 
-        # поиск через строку поиска
-        token = f"{config.get_name_token()}={config.get_value_token()}"
-        login = f"{config.get_name_login()}={config.get_value_login()}"
-        cookie = f"{token}; {login}"
+    # поиск через строку поиска
+    token = f"{config.get_name_token()}={config.get_value_token()}"
+    login = f"{config.get_name_login()}={config.get_value_login()}"
+    cookie = f"{token}; {login}"
 
-        headers = {
-            'cookie': cookie,
-            'accept-language': 'ru',
-            'Authorization': f'Bearer {token}'
+    headers = {
+        'cookie': cookie,
+        'accept-language': 'ru',
+        'Authorization': f'Bearer {token}'
+    }
+    data = {
+        "text": provider.get_api_product_for_search(),
+        "filters": [],
+        "location": {
+            "longitude": provider.get_api_longitude(),
+            "latitude": provider.get_api_latitude()
         }
-        data = {
-            "text": provider.get_api_product_for_search(),
-            "filters": [],
-            "location": {
-                "longitude": provider.get_api_longitude(),
-                "latitude": provider.get_api_latitude()
-            }
-        }
-        found_product = delivery_api.search_product(headers, data)
+    }
+    found_product = delivery_api.search_product(headers, data)
 
-        with allure.step("Проверка статус кода поиска товара"):
-            assert found_product.status_code == 200, \
-                "❌ Запрашиваемый товар не найден"
+    with allure.step("Проверка статус кода поиска товара"):
+        assert found_product.status_code == 200, \
+            "❌ Запрашиваемый товар не найден"
 
-        with allure.step("Проверка результатов поиска"):
-            founded_result = found_product.json()["header"]["text"]
-            results = founded_result.split(' ')
-            expected1, expected2, expected3 = results[0].lower(), results[1], results[2].lower()
+    with allure.step("Проверка результатов поиска"):
+        founded_result = found_product.json()["header"]["text"]
+        results = founded_result.split(' ')
+        expected1, expected2, expected3 = results[0].lower(), results[1], results[2].lower()
 
-            assert expected1.lower() == 'найдено'
-            assert int(expected2) > 0
-            assert expected3 in ['результатов',
+        assert expected1.lower() == 'найдено'
+        assert int(expected2) > 0
+        assert expected3 in ['результатов',
                                  'результат', 'результата']
 
-        print("✅✅✅✅✅✅Тест test_positive_search_product "
-              "пройден успешно!✅✅✅✅✅✅")
-
-    except Exception as e:
-        print(f"❌❌❌❌❌❌Произошла ошибка "
-              f"в test_positive_search_product:"
-              f" {str(e)}❌❌❌❌❌❌")
-        raise
+    print("✅✅✅✅✅✅Тест test_positive_search_product "
+            "пройден успешно!✅✅✅✅✅✅")
 
 
 @allure.feature("Поиск продуктов")
@@ -153,68 +139,61 @@ def test_positive_search_product(delivery_api: DeliveryApi):
     - Отсутствие результатов поиска
 """)
 def test_negative_search_non_existent_product(delivery_api: DeliveryApi):
-    try:
-        # указываем адрес доставки
-        data = {
-            "action": "user_input",
-            "type": "a",
-            "part": provider.get_api_address(),
-            "state": {
-                "current_mode": "eats",
-                "bbox": provider.get_api_coordinates()
-            }
+    # указываем адрес доставки
+    data = {
+        "action": "user_input",
+        "type": "a",
+        "part": provider.get_api_address(),
+        "state": {
+            "current_mode": "eats",
+            "bbox": provider.get_api_coordinates()
         }
-        headers = {
-            'cookie': config.get_api_cookie_eat_session(),
-            'accept-language': 'ru'
+    }
+    headers = {
+        'cookie': config.get_api_cookie_eat_session(),
+        'accept-language': 'ru'
+    }
+    changed_address = delivery_api.change_delivery_address(headers, data)
+
+    with allure.step("Проверка статус кода изменения адреса"):
+        assert changed_address.status_code == 200, \
+            "❌ Адрес доставки не изменился"
+
+    # поиск через строку поиска
+    token = f"{config.get_name_token()}={config.get_value_token()}"
+    login = f"{config.get_name_login()}={config.get_value_login()}"
+    cookie = f"{token}; {login}"
+    headers = {
+        'cookie': cookie,
+        'accept-language': 'ru',
+        'Authorization': f'Bearer {token}'
+    }
+    data = {
+        "text": provider.get_api_product_non_existent(),
+        "filters": [],
+        "location": {
+            "longitude": provider.get_api_longitude(),
+            "latitude": provider.get_api_latitude()
         }
-        changed_address = delivery_api.change_delivery_address(headers, data)
+    }
+    found_product = delivery_api.search_product(headers, data)
 
-        with allure.step("Проверка статус кода изменения адреса"):
-            assert changed_address.status_code == 200, \
-                "❌ Адрес доставки не изменился"
+    with allure.step("Проверка статус кода поиска товара"):
+        assert found_product.status_code == 200, \
+            "❌ Запрашиваемый товар не найден"
 
-        # поиск через строку поиска
-        token = f"{config.get_name_token()}={config.get_value_token()}"
-        login = f"{config.get_name_login()}={config.get_value_login()}"
-        cookie = f"{token}; {login}"
-        headers = {
-            'cookie': cookie,
-            'accept-language': 'ru',
-            'Authorization': f'Bearer {token}'
-        }
-        data = {
-            "text": provider.get_api_product_non_existent(),
-            "filters": [],
-            "location": {
-                "longitude": provider.get_api_longitude(),
-                "latitude": provider.get_api_latitude()
-            }
-        }
-        found_product = delivery_api.search_product(headers, data)
+    with allure.step("Проверка результатов поиска"):
+        founded_product_text = found_product.json()["header"]["text"]
+        if 'найдено' in founded_product_text.lower():
+            assert False, f"❌ Ошибка: {founded_product_text}"
 
-        with allure.step("Проверка статус кода поиска товара"):
-            assert found_product.status_code == 200, \
-                "❌ Запрашиваемый товар не найден"
+        expected = str(founded_product_text.split(',')[0].strip())
 
-        with allure.step("Проверка результатов поиска"):
-            founded_product_text = found_product.json()["header"]["text"]
-            if 'найдено' in founded_product_text.lower():
-                assert False, f"❌ Ошибка: {founded_product_text}"
+        assert expected.lower() == 'ничего не нашли'
 
-            expected = str(founded_product_text.split(',')[0].strip())
-
-            assert expected.lower() == 'ничего не нашли'
-
-        print("✅✅✅✅✅✅Тест "
-              "test_negative_search_non_existent_product "
-              "пройден успешно!✅✅✅✅✅✅")
-
-    except Exception as e:
-        print(f"❌❌❌❌❌❌Произошла ошибка "
-              f"в test_negative_search_non_existent_product: "
-              f"{str(e)}❌❌❌❌❌❌")
-        raise
+    print("✅✅✅✅✅✅Тест "
+            "test_negative_search_non_existent_product "
+            "пройден успешно!✅✅✅✅✅✅")
 
 
 @allure.feature("Магазины")
@@ -232,9 +211,8 @@ def test_negative_search_non_existent_product(delivery_api: DeliveryApi):
     - Присутствие ожидаемых магазинов в списке
 """)
 def test_positive_get_list_shops(delivery_api: DeliveryApi):
-    try:
-        # указываем адрес доставки
-        data = {
+    # указываем адрес доставки
+    data = {
             "action": "user_input",
             "type": "a",
             "part": provider.get_api_address(),
@@ -243,28 +221,28 @@ def test_positive_get_list_shops(delivery_api: DeliveryApi):
                 "bbox": provider.get_api_coordinates()
             }
         }
-        headers = {
+    headers = {
             'cookie': config.get_api_cookie_eat_session(),
             'accept-language': 'ru'
         }
-        changed_address = delivery_api.change_delivery_address(headers, data)
+    changed_address = delivery_api.change_delivery_address(headers, data)
 
-        with allure.step("Проверка статус кода изменения адреса"):
-            assert changed_address.status_code == 200, \
-                "❌ Адрес доставки не изменился"
+    with allure.step("Проверка статус кода изменения адреса"):
+        assert changed_address.status_code == 200, \
+            "❌ Адрес доставки не изменился"
 
-        # получение списка магазинов
-        token = f"{config.get_name_token()}={config.get_value_token()}"
-        login = f"{config.get_name_login()}={config.get_value_login()}"
-        cookie = f"{token}; {login}"
-        headers = {
-            'cookie': cookie,
-            'x-device-id': 'mbf0psvl-9qggld7b7v-ochuyru1isk-kc50vstxhp',
-            'accept-language': 'ru',
-            'content-type': 'application/json;charset=UTF-8',
-            'Authorization': f'Bearer {token}'
-        }
-        data = {
+    # получение списка магазинов
+    token = f"{config.get_name_token()}={config.get_value_token()}"
+    login = f"{config.get_name_login()}={config.get_value_login()}"
+    cookie = f"{token}; {login}"
+    headers = {
+        'cookie': cookie,
+        'x-device-id': 'mbf0psvl-9qggld7b7v-ochuyru1isk-kc50vstxhp',
+        'accept-language': 'ru',
+        'content-type': 'application/json;charset=UTF-8',
+        'Authorization': f'Bearer {token}'
+    }
+    data = {
             "view": {
                 "type": "collection",
                 "slug": "shops"
@@ -274,33 +252,27 @@ def test_positive_get_list_shops(delivery_api: DeliveryApi):
                 "longitude": provider.get_api_longitude()
             }
         }
-        getting_list_shops = delivery_api.get_list_shops(headers, data)
+    getting_list_shops = delivery_api.get_list_shops(headers, data)
 
-        with allure.step("Проверка статус кода получения "
-                         "списка магазинов"):
-            assert getting_list_shops.status_code == 200, \
-                "❌ Список магазинов не получен"
+    with allure.step("Проверка статус кода получения "
+                        "списка магазинов"):
+        assert getting_list_shops.status_code == 200, \
+            "❌ Список магазинов не получен"
 
-        with allure.step("Проверка списка магазинов"):
-            all_shops = getting_list_shops.json()
-            list_shops = all_shops["data"]["places_v2_lists"][0]["payload"]["places"]
-            total_shops = len(list_shops)
+    with allure.step("Проверка списка магазинов"):
+        all_shops = getting_list_shops.json()
+        list_shops = all_shops["data"]["places_v2_lists"][0]["payload"]["places"]
+        total_shops = len(list_shops)
 
-            shop_names = [shop["name"]["value"] for shop in list_shops]
+        shop_names = [shop["name"]["value"] for shop in list_shops]
 
-            assert total_shops > 0
-            assert provider.get_api_shops()[0] in shop_names
-            assert provider.get_api_shops()[1] in shop_names
-            assert provider.get_api_shops()[2] in shop_names
+        assert total_shops > 0
+        assert provider.get_api_shops()[0] in shop_names
+        assert provider.get_api_shops()[1] in shop_names
+        assert provider.get_api_shops()[2] in shop_names
 
-        print("✅✅✅✅✅✅Тест test_positive_get_list_shops "
-              "пройден успешно!✅✅✅✅✅✅")
-
-    except Exception as e:
-        print(f"❌❌❌❌❌❌Произошла ошибка "
-              f"в test_positive_get_list_shops: "
-              f"{str(e)}❌❌❌❌❌❌")
-        raise
+    print("✅✅✅✅✅✅Тест test_positive_get_list_shops "
+            "пройден успешно!✅✅✅✅✅✅")
 
 
 @allure.feature("Управление адресом доставки")
@@ -316,8 +288,7 @@ def test_positive_get_list_shops(delivery_api: DeliveryApi):
    - Соответствующее сообщение об ошибке
 """)
 def test_negative_removing_delivery_address(delivery_api: DeliveryApi):
-    try:
-        data = {
+    data = {
             "action": "user_input",
             "type": "a",
             "part": "",
@@ -326,29 +297,24 @@ def test_negative_removing_delivery_address(delivery_api: DeliveryApi):
                 "bbox": []
             }
         }
-        headers = {
+    headers = {
             'cookie': config.get_api_cookie_eat_session(),
             'accept-language': 'ru'
         }
-        removing_address = delivery_api.change_delivery_address(headers, data)
+    removing_address = delivery_api.change_delivery_address(headers, data)
 
-        with allure.step("Проверка статус кода удаления адреса доставки"):
-            assert removing_address.status_code == 400, \
-                (f"❌ Удаление адреса доставки прошло успешно, "
-                 f"статус {removing_address.status_code}")
+    with allure.step("Проверка статус кода удаления адреса доставки"):
+        assert removing_address.status_code == 400, \
+            (f"❌ Удаление адреса доставки прошло успешно, "
+                f"статус {removing_address.status_code}")
 
-        with allure.step("Проверка содержимого сообщения об ошибке"):
-            response_json = removing_address.json()
-            expected_message_fragment = ("path 'state.bbox': "
+    with allure.step("Проверка содержимого сообщения об ошибке"):
+        response_json = removing_address.json()
+        expected_message_fragment = ("path 'state.bbox': "
                                          "incorrect size, must be 4 "
                                          "(limit) <= 0 (value)")
 
-            assert expected_message_fragment in response_json.get("message", "")
+        assert expected_message_fragment in response_json.get("message", "")
 
-        print("✅✅✅✅✅✅Тест test_negative_removing_delivery_address "
-              "пройден успешно!✅✅✅✅✅✅")
-
-    except Exception:
-        print("❌❌❌❌❌❌ Произошла ошибка в "
-              "test_negative_removing_delivery_address ❌❌❌❌❌❌")
-        raise
+    print("✅✅✅✅✅✅Тест test_negative_removing_delivery_address "
+            "пройден успешно!✅✅✅✅✅✅")
